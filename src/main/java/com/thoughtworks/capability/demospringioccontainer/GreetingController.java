@@ -1,22 +1,21 @@
 package com.thoughtworks.capability.demospringioccontainer;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * It contradicts the principle of inversion of control,
- * as we request the dependencies from the container directly.
- */
 @RestController
-public class GreetingController implements ApplicationContextAware {
+public class GreetingController {
 
-    private ApplicationContext applicationContext;
-
+    /**
+     * Spring will override the getPrototypeBean() method annotated with @Lookup. It then registers the bean into the
+     * application context. Whenever we request the getPrototypeBean() method, it returns a new PrototypeBean instance.
+     * It will use CGLIB to generate the bytecode responsible for fetching the PrototypeBean from the application context.
+     * @return GreetingService
+     */
+    @Lookup
     public GreetingService getGreetingService() {
-        return applicationContext.getBean(GreetingService.class);
+        return null;
     }
 
     @GetMapping("/greet")
@@ -25,10 +24,5 @@ public class GreetingController implements ApplicationContextAware {
         System.out.println("Greeting Service: " + greetingService);
         System.out.println("Greeting Controller: " + this + "\n");
         return greetingService.sayHi();
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }
